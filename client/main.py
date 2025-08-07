@@ -1,6 +1,6 @@
 import pygame
 
-from utils import load_image, scale_image, set_alpha
+from utils import load_image, scale_image, set_alpha, draw_on_screen, draw_rect
 from paths import DEBUG_IMAGE_PATH
 from colors import *
 
@@ -8,7 +8,6 @@ pygame.init()
 
 screen_size:tuple[int, int] = (640, 640)
 frame_rate:float = 60.0
-
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode(screen_size)
 running:bool = True
@@ -18,22 +17,22 @@ debug_img = scale_image(debug_img, 2)
 
 x:int = 0
 delta_time:float = 0.1
-moving:bool = False
+
+moving_left:bool = False
+moving_right:bool = False
+jumping:bool = False
+grounded:bool = False
+meele:bool = False
+shooting:bool = False
 
 while running:
     screen.fill(WHITE)
     
-    screen.blit(debug_img, (x, 30))
-    hitbox = pygame.Rect(x, 30, debug_img.get_width(), debug_img.get_height())
+    draw_on_screen(screen, debug_img, (x, 30))
+    draw_rect(screen, GREEN, (300, 0), (160, 280))
 
-    mpos = pygame.mouse.get_pos()
-
-    target = pygame.Rect(300, 0, 160, 280)
-    collision:bool = hitbox.colliderect(target)
-    m_collision:bool = target.collidepoint(mpos)
-    pygame.draw.rect(screen, (255 * collision, 255 * m_collision, 0), target)
-
-    x += 50 * delta_time * moving
+    side_modifier = 1 if moving_right else -1 if moving_left else 0
+    x += 50 * delta_time * side_modifier
 
     for event in pygame.event.get():
         match event.type:
@@ -41,10 +40,23 @@ while running:
                 running = False
             case pygame.KEYDOWN:
                 if event.key == pygame.K_d:
-                    moving = True
+                    moving_right = True
+                if event.key == pygame.K_a:
+                    moving_left = True
+                if event.key == pygame.K_SPACE:
+                    jumping = True
             case pygame.KEYUP:
                 if event.key == pygame.K_d:
-                    moving = False
+                    moving_right = False
+                if event.key == pygame.K_a:
+                    moving_left = False
+                if event.key == pygame.K_SPACE:
+                    jumping = False
+            case pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    meele = True
+                if event.button == 2:
+                    shooting = True
             case _:
                 continue
 
