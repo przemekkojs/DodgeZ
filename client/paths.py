@@ -1,0 +1,1 @@
+DEBUG_IMAGE_PATH:str = 'client/img/debug.png'
